@@ -241,3 +241,39 @@ async def delete_monitor(monitor_id: str, api_key_id: int):
         """, (monitor_id, api_key_id))
         await db.commit()
 
+
+
+# Import error handlers and admin
+from error_handlers import register_error_handlers
+from admin import verify_admin_key, get_system_stats, get_recent_users, get_usage_by_user
+
+# Register error handlers
+register_error_handlers(app)
+
+# --- Admin endpoints ---
+
+@app.get("/api/admin/stats", tags=["Admin"], summary="Get system statistics")
+async def admin_stats(admin_key: str = Depends(verify_admin_key)):
+    """Get comprehensive system statistics (admin only)."""
+    stats = await get_system_stats()
+    return {"success": True, **stats}
+
+
+@app.get("/api/admin/recent-users", tags=["Admin"], summary="Get recent users")
+async def admin_recent_users(
+    limit: int = 20,
+    admin_key: str = Depends(verify_admin_key)
+):
+    """Get recently registered users (admin only)."""
+    users = await get_recent_users(limit=limit)
+    return {"success": True, "users": users, "count": len(users)}
+
+
+@app.get("/api/admin/top-users", tags=["Admin"], summary="Get top users by usage")
+async def admin_top_users(
+    limit: int = 20,
+    admin_key: str = Depends(verify_admin_key)
+):
+    """Get top users by request volume (admin only)."""
+    users = await get_usage_by_user(limit=limit)
+    return {"success": True, "users": users, "count": len(users)}
