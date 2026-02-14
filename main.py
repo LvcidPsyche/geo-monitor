@@ -172,3 +172,58 @@ async def get_report(monitor_id: str, api_key: str = Depends(verify_api_key)):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8772)
+
+# Phase 2: Add SQLite persistence for monitors
+import aiosqlite
+import json as json_lib
+
+DB_PATH = "monitors.db"
+
+async def init_monitors_db():
+    """Initialize monitors database."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS monitors (
+                id TEXT PRIMARY KEY,
+                api_key_id INTEGER,
+                keywords TEXT,
+                locations TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_active BOOLEAN DEFAULT 1
+            )
+        """)
+        await db.commit()
+
+async def save_monitor(monitor_id: str, api_key_id: int, keywords: list, locations: list):
+    """Save monitor to database."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("""
+            INSERT OR REPLACE INTO monitors (id, api_key_id, keywords, locations)
+            VALUES (?, ?, ?, ?)
+        """, (monitor_id, api_key_id, json_lib.dumps(keywords), json_lib.dumps(locations)))
+        await db.commit()
+
+async def get_monitors_for_api_key(api_key_id: int) -> list:
+    """Get all monitors for an API key."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute("""
+            SELECT * FROM monitors WHERE api_key_id = ? AND is_active = 1
+        """, (api_key_id,)) as cursor:
+            rows = await cursor.fetchall()
+            return [dict(row) for row in rows]
+
+async def delete_monitor(monitor_id: str, api_key_id: int):
+    """Delete a monitor."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        await db.execute("""
+            UPDATE monitors SET is_active = 0
+            WHERE id = ? AND api_key_id = ?
+        """, (monitor_id, api_key_id))
+        await db.commit()
+
+# Initialize on startup
+@app.on_event("startup")
+async def startup():
+    await init_monitors_db()
+
