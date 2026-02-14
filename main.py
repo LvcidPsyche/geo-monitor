@@ -1,6 +1,7 @@
 import hashlib
 import random
 import uuid
+from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 from typing import List, Optional
 
@@ -11,7 +12,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
-app = FastAPI(title="GEO Monitor API", version="1.0.0")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    await init_monitors_db()
+    yield
+    # Shutdown
+    pass
+
+app = FastAPI(title="GEO Monitor API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,9 +34,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
 DEMO_API_KEY = "demo-key-2024"
-
-# In-memory store for monitors
-monitors_db: dict = {}
 
 SUPPORTED_LOCATIONS = [
     "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
@@ -114,14 +120,8 @@ async def check_ranking(body: CheckRankingRequest, api_key: str = Depends(verify
 @app.post("/api/monitor")
 async def create_monitor(body: MonitorRequest, api_key: str = Depends(verify_api_key)):
     monitor_id = str(uuid.uuid4())[:8]
-    monitors_db[monitor_id] = {
-        "id": monitor_id,
-        "domain": body.domain,
-        "keywords": body.keywords,
-        "locations": body.locations,
-        "created_at": datetime.utcnow().isoformat(),
-        "status": "active",
-    }
+    # Save to database
+    await save_monitor(monitor_id, 0, body.domain, body.keywords, body.locations)
     return {
         "message": "Monitor created successfully",
         "monitor_id": monitor_id,
@@ -139,7 +139,7 @@ async def list_locations(api_key: str = Depends(verify_api_key)):
 
 @app.get("/api/report/{monitor_id}")
 async def get_report(monitor_id: str, api_key: str = Depends(verify_api_key)):
-    monitor = monitors_db.get(monitor_id)
+    monitor = await get_monitor_by_id(monitor_id)
     if not monitor:
         # Generate a demo report for any ID
         monitor = {
@@ -186,6 +186,7 @@ async def init_monitors_db():
             CREATE TABLE IF NOT EXISTS monitors (
                 id TEXT PRIMARY KEY,
                 api_key_id INTEGER,
+                domain TEXT,
                 keywords TEXT,
                 locations TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -194,14 +195,32 @@ async def init_monitors_db():
         """)
         await db.commit()
 
-async def save_monitor(monitor_id: str, api_key_id: int, keywords: list, locations: list):
+async def save_monitor(monitor_id: str, api_key_id: int, domain: str, keywords: list, locations: list):
     """Save monitor to database."""
     async with aiosqlite.connect(DB_PATH) as db:
         await db.execute("""
-            INSERT OR REPLACE INTO monitors (id, api_key_id, keywords, locations)
-            VALUES (?, ?, ?, ?)
-        """, (monitor_id, api_key_id, json_lib.dumps(keywords), json_lib.dumps(locations)))
+            INSERT OR REPLACE INTO monitors (id, api_key_id, domain, keywords, locations)
+            VALUES (?, ?, ?, ?, ?)
+        """, (monitor_id, api_key_id, domain, json_lib.dumps(keywords), json_lib.dumps(locations)))
         await db.commit()
+
+async def get_monitor_by_id(monitor_id: str):
+    """Get a monitor by ID."""
+    async with aiosqlite.connect(DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute("""
+            SELECT * FROM monitors WHERE id = ? AND is_active = 1
+        """, (monitor_id,)) as cursor:
+            row = await cursor.fetchone()
+            if row:
+                data = dict(row)
+                # Parse JSON fields back to lists
+                if data.get('keywords'):
+                    data['keywords'] = json_lib.loads(data['keywords'])
+                if data.get('locations'):
+                    data['locations'] = json_lib.loads(data['locations'])
+                return data
+            return None
 
 async def get_monitors_for_api_key(api_key_id: int) -> list:
     """Get all monitors for an API key."""
@@ -221,9 +240,4 @@ async def delete_monitor(monitor_id: str, api_key_id: int):
             WHERE id = ? AND api_key_id = ?
         """, (monitor_id, api_key_id))
         await db.commit()
-
-# Initialize on startup
-@app.on_event("startup")
-async def startup():
-    await init_monitors_db()
 
