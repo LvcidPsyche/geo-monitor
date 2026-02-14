@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GEO Monitor - Track Your Rankings Across the Globe</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --bg-card-hover: #222230;
+            --text-primary: #f0f0f5;
+            --text-secondary: #9999aa;
+            --text-muted: #666677;
+            --accent-orange: #f59e0b;
+            --accent-amber: #d97706;
+            --accent-gradient: linear-gradient(135deg, #f59e0b, #d97706, #b45309);
+            --accent-glow: rgba(245, 158, 11, 0.15);
+            --border-color: #2a2a3a;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 30px rgba(245, 158, 11, 0.1);
+            --font-main: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', monospace;
+            --max-width: 1200px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ── Navbar ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 24px;
+        }
+
+        nav .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.35rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-gradient);
+            border-radius: var(--radius-sm);
+            font-size: 1.1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.925rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-orange);
+        }
+
+        .nav-cta {
+            background: var(--accent-gradient);
+            color: #000 !important;
+            padding: 8px 20px;
+            border-radius: var(--radius-sm);
+            font-weight: 600 !important;
+            transition: opacity 0.2s !important;
+        }
+
+        .nav-cta:hover {
+            opacity: 0.9;
+            color: #000 !important;
+        }
+
+        /* ── Hero ── */
+        .hero {
+            padding: 140px 0 80px;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: var(--accent-orange);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero h1 .gradient-text {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        /* ── Demo Section ── */
+        .demo-section {
+            padding: 40px 0 80px;
+        }
+
+        .demo-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .demo-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .demo-card .demo-subtitle {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 28px;
+            font-size: 0.95rem;
+        }
+
+        .demo-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input,
+        .form-group select {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            font-size: 0.95rem;
+            font-family: var(--font-main);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--accent-orange);
+        }
+
+        .form-group select option {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .locations-select {
+            grid-column: 1 / -1;
+        }
+
+        .location-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .location-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 100px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .location-chip:hover {
+            border-color: var(--accent-orange);
+        }
+
+        .location-chip.active {
+            background: var(--accent-glow);
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        .location-chip input {
+            display: none;
+        }
+
+        .btn-demo {
+            grid-column: 1 / -1;
+            background: var(--accent-gradient);
+            color: #000;
+            border: none;
+            padding: 14px 32px;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            font-family: var(--font-main);
+        }
+
+        .btn-demo:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-demo:active {
+            transform: translateY(0);
+        }
+
+        .btn-demo:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── Results Table ── */
+        .results-container {
+            margin-top: 28px;
+            display: none;
+        }
+
+        .results-container.visible {
+            display: block;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .results-header h4 {
+            font-size: 1.05rem;
+        }
+
+        .results-meta {
+            font-size: 0.825rem;
+            color: var(--text-muted);
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+        }
+
+        .ranking-table thead th {
+            background: var(--bg-primary);
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .ranking-table tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        .ranking-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .ranking-table tbody tr {
+            transition: background 0.15s;
+        }
+
+        .ranking-table tbody tr:hover {
+            background: rgba(245, 158, 11, 0.04);
+        }
+
+        .position-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .position-top10 {
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
+        }
+
+        .position-top30 {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-orange);
+        }
+
+        .position-low {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+        }
+
+        .trend-up {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .trend-down {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        .trend-stable {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .traffic-value {
+            font-family: var(--font-mono);
+            font-weight: 600;
+        }
+
+        /* ── Features ── */
+        .features {
+            padding: 80px 0;
+        }
+
+        .section-label {
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent-orange);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .section-desc {
+            text-align: center;
+            color: var(--text-secondary);
+            max-width: 550px;
+            margin: 0 auto 48px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 32px;
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(245, 158, 11, 0.3);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--accent-glow);
+            border-radius: var(--radius-sm);
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.925rem;
+            line-height: 1.65;
+        }
+
+        /* ── Stats ── */
+        .stats {
+            padding: 60px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+        }
+
+        .stats .container {
+            text-align: center;
+        }
+
+        .stats-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .stat-item {
+            padding: 20px;
+        }
+
+        .stat-number {
+            font-size: 2.75rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.925rem;
+        }
+
+        /* ── Pricing ── */
+        .pricing {
+            padding: 80px 0;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 36px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.25s, border-color 0.25s;
+            position: relative;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .pricing-card.featured {
+            border-color: var(--accent-orange);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .pricing-popular {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--accent-gradient);
+            color: #000;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 16px;
+            border-radius: 100px;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .pricing-card .plan-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .price {
+            font-size: 2.75rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .price span {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 24px 0;
+            flex: 1;
+        }
+
+        .pricing-features li {
+            padding: 8px 0;
+            color: var(--text-secondary);
+            font-size: 0.925rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pricing-features li::before {
+            content: '';
+            width: 18px;
+            height: 18px;
+            background: rgba(34, 197, 94, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2322c55e'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+            background-size: 12px;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .btn-pricing {
+            display: block;
+            text-align: center;
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: opacity 0.2s, transform 0.1s;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-main);
+        }
+
+        .btn-pricing-primary {
+            background: var(--accent-gradient);
+            color: #000;
+        }
+
+        .btn-pricing-secondary {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-pricing:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* ── Footer ── */
+        footer {
+            padding: 60px 0 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand .logo {
+            margin-bottom: 16px;
+        }
+
+        .footer-brand p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            max-width: 280px;
+        }
+
+        .footer-col h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .footer-col a {
+            display: block;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            padding: 4px 0;
+            transition: color 0.2s;
+        }
+
+        .footer-col a:hover {
+            color: var(--accent-orange);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--border-color);
+            padding-top: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* ── Animations ── */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Loading Spinner ── */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(0,0,0,0.2);
+            border-top-color: #000;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .demo-form {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .demo-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav>
+    <div class="container">
+        <a href="#" class="logo">
+            <div class="logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="2" y1="12" x2="22" y2="12"/>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+            </div>
+            GEO Monitor
+        </a>
+        <ul class="nav-links">
+            <li><a href="#demo">Demo</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#pricing" class="nav-cta">Get Started</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- ══ HERO ══ -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Now tracking 50+ locations worldwide
+        </div>
+        <h1>Track Your Rankings<br><span class="gradient-text">Across the Globe</span></h1>
+        <p>Monitor how your website ranks in different cities and countries. Get local SEO insights that drive real traffic growth.</p>
+    </div>
+</section>
+
+<!-- ══ DEMO ══ -->
+<section class="demo-section" id="demo">
+    <div class="container">
+        <div class="demo-card">
+            <h3>Try It Now</h3>
+            <p class="demo-subtitle">Enter a domain and keyword to see live ranking data across locations</p>
+            <form id="demoForm" class="demo-form">
+                <div class="form-group">
+                    <label for="domain">Domain</label>
+                    <input type="text" id="domain" placeholder="example.com" value="myshop.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="keyword">Keyword</label>
+                    <input type="text" id="keyword" placeholder="best coffee beans" value="best coffee" required>
+                </div>
+                <div class="form-group locations-select">
+                    <label>Locations</label>
+                    <div class="location-checkboxes" id="locationChips">
+                        <label class="location-chip active" data-loc="New York">
+                            <input type="checkbox" value="New York" checked> New York
+                        </label>
+                        <label class="location-chip active" data-loc="London">
+                            <input type="checkbox" value="London" checked> London
+                        </label>
+                        <label class="location-chip active" data-loc="Tokyo">
+                            <input type="checkbox" value="Tokyo" checked> Tokyo
+                        </label>
+                        <label class="location-chip" data-loc="Sydney">
+                            <input type="checkbox" value="Sydney"> Sydney
+                        </label>
+                        <label class="location-chip" data-loc="Berlin">
+                            <input type="checkbox" value="Berlin"> Berlin
+                        </label>
+                        <label class="location-chip" data-loc="Paris">
+                            <input type="checkbox" value="Paris"> Paris
+                        </label>
+                        <label class="location-chip" data-loc="Toronto">
+                            <input type="checkbox" value="Toronto"> Toronto
+                        </label>
+                        <label class="location-chip" data-loc="Mumbai">
+                            <input type="checkbox" value="Mumbai"> Mumbai
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn-demo" id="demoBtn">Check Rankings</button>
+            </form>
+
+            <div class="results-container" id="results">
+                <div class="results-header">
+                    <h4>Ranking Results</h4>
+                    <span class="results-meta" id="resultsMeta"></span>
+                </div>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Position</th>
+                            <th>Est. Traffic</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ FEATURES ══ -->
+<section class="features" id="features">
+    <div class="container">
+        <p class="section-label">Features</p>
+        <h2 class="section-title">Everything You Need for Local SEO</h2>
+        <p class="section-desc">Powerful tools to monitor, analyze, and improve your search rankings across every market that matters.</p>
+        <div class="features-grid">
+            <div class="feature-card animate-in">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                        <circle cx="12" cy="10" r="3"/>
+                    </svg>
+                </div>
+                <h3>Multi-Location Tracking</h3>
+                <p>Track rankings across 50+ cities and countries simultaneously. See exactly how your site performs in each local market.</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <h3>Daily Rank Updates</h3>
+                <p>Get fresh ranking data every 24 hours. Spot trends early and react before your competitors do.</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <h3>Competitor Analysis</h3>
+                <p>Monitor your competitors' rankings side-by-side with yours. Identify gaps and opportunities in every market.</p>
+            </div>
+            <div class="feature-card animate-in">
+                <div class="feature-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                    </svg>
+                </div>
+                <h3>Custom Reports</h3>
+                <p>Generate white-label PDF reports for clients. Schedule automatic delivery weekly or monthly.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ STATS ══ -->
+<section class="stats" id="stats">
+    <div class="container">
+        <h2 class="stats-title">Trusted by SEO Professionals Worldwide</h2>
+        <div class="stats-grid">
+            <div class="stat-item animate-in">
+                <div class="stat-number" data-target="2000" data-suffix="+">0</div>
+                <div class="stat-label">Active Users</div>
+            </div>
+            <div class="stat-item animate-in">
+                <div class="stat-number" data-target="50" data-suffix="+">0</div>
+                <div class="stat-label">Locations Tracked</div>
+            </div>
+            <div class="stat-item animate-in">
+                <div class="stat-number" data-target="12" data-suffix="M+">0</div>
+                <div class="stat-label">Rankings Checked</div>
+            </div>
+            <div class="stat-item animate-in">
+                <div class="stat-number" data-target="99" data-suffix=".9%">0</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ PRICING ══ -->
+<section class="pricing" id="pricing">
+    <div class="container">
+        <p class="section-label">Pricing</p>
+        <h2 class="section-title">Simple, Transparent Pricing</h2>
+        <p class="section-desc">Start with the plan that fits your needs. Upgrade anytime as you grow.</p>
+        <div class="pricing-grid">
+            <div class="pricing-card animate-in">
+                <h3>Local</h3>
+                <p class="plan-desc">For small businesses focused on local markets</p>
+                <div class="price">$39<span>/mo</span></div>
+                <ul class="pricing-features">
+                    <li>5 domains</li>
+                    <li>10 locations</li>
+                    <li>100 keywords</li>
+                    <li>Daily rank updates</li>
+                    <li>Email reports</li>
+                    <li>7-day data history</li>
+                </ul>
+                <a href="https://gumroad.com/l/geo-local" target="_blank" class="btn-pricing btn-pricing-secondary">Get Started</a>
+            </div>
+            <div class="pricing-card featured animate-in">
+                <div class="pricing-popular">Most Popular</div>
+                <h3>Regional</h3>
+                <p class="plan-desc">For agencies managing multiple clients</p>
+                <div class="price">$89<span>/mo</span></div>
+                <ul class="pricing-features">
+                    <li>25 domains</li>
+                    <li>50 locations</li>
+                    <li>500 keywords</li>
+                    <li>Daily rank updates</li>
+                    <li>White-label reports</li>
+                    <li>30-day data history</li>
+                    <li>Competitor tracking</li>
+                    <li>API access</li>
+                </ul>
+                <a href="https://gumroad.com/l/geo-regional" target="_blank" class="btn-pricing btn-pricing-primary">Get Started</a>
+            </div>
+            <div class="pricing-card animate-in">
+                <h3>Global</h3>
+                <p class="plan-desc">For enterprises with worldwide presence</p>
+                <div class="price">$179<span>/mo</span></div>
+                <ul class="pricing-features">
+                    <li>Unlimited domains</li>
+                    <li>All 50+ locations</li>
+                    <li>Unlimited keywords</li>
+                    <li>Hourly rank updates</li>
+                    <li>White-label reports</li>
+                    <li>90-day data history</li>
+                    <li>Competitor tracking</li>
+                    <li>Full API access</li>
+                    <li>Priority support</li>
+                </ul>
+                <a href="https://gumroad.com/l/geo-global" target="_blank" class="btn-pricing btn-pricing-secondary">Get Started</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+    <div class="container">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                    </div>
+                    GEO Monitor
+                </a>
+                <p>Track your search engine rankings across the globe. Local SEO intelligence for modern businesses.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="#demo">Live Demo</a>
+                <a href="#">API Docs</a>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <a href="#">About</a>
+                <a href="#">Blog</a>
+                <a href="#">Careers</a>
+                <a href="#">Contact</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="#">Help Center</a>
+                <a href="#">Status</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; 2026 GEO Monitor. All rights reserved.</span>
+            <span>Built for SEO professionals</span>
+        </div>
+    </div>
+</footer>
+
+<script>
+(function() {
+    'use strict';
+
+    const API_KEY = 'demo-key-2024';
+
+    // ── Location chip toggle ──
+    document.querySelectorAll('.location-chip').forEach(chip => {
+        chip.addEventListener('click', function(e) {
+            e.preventDefault();
+            const checkbox = this.querySelector('input');
+            checkbox.checked = !checkbox.checked;
+            this.classList.toggle('active', checkbox.checked);
+        });
+    });
+
+    // ── Demo form submission ──
+    const form = document.getElementById('demoForm');
+    const btn = document.getElementById('demoBtn');
+    const resultsContainer = document.getElementById('results');
+    const resultsBody = document.getElementById('resultsBody');
+    const resultsMeta = document.getElementById('resultsMeta');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const domain = document.getElementById('domain').value.trim();
+        const keyword = document.getElementById('keyword').value.trim();
+        const checkedBoxes = document.querySelectorAll('.location-chip input:checked');
+        const locations = Array.from(checkedBoxes).map(cb => cb.value);
+
+        if (!domain || !keyword) return;
+        if (locations.length === 0) {
+            alert('Please select at least one location.');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner"></span>Checking rankings...';
+
+        try {
+            const response = await fetch('/api/check-ranking', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-API-Key': API_KEY
+                },
+                body: JSON.stringify({ domain, keyword, locations })
+            });
+
+            if (!response.ok) throw new Error('API request failed');
+
+            const data = await response.json();
+            renderResults(data);
+        } catch (err) {
+            console.error(err);
+            alert('Something went wrong. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Check Rankings';
+        }
+    });
+
+    function renderResults(data) {
+        resultsBody.innerHTML = '';
+        resultsMeta.textContent = `${data.domain} \u2022 "${data.keyword}" \u2022 ${new Date(data.checked_at).toLocaleString()}`;
+
+        data.results.forEach(r => {
+            if (r.error) {
+                resultsBody.innerHTML += `
+                    <tr>
+                        <td>${r.location}</td>
+                        <td colspan="3" style="color:var(--danger)">${r.error}</td>
+                    </tr>`;
+                return;
+            }
+
+            let posClass = 'position-low';
+            if (r.position <= 10) posClass = 'position-top10';
+            else if (r.position <= 30) posClass = 'position-top30';
+
+            let trendIcon, trendClass;
+            if (r.trend === 'up') {
+                trendIcon = '\u25B2 +' + r.change;
+                trendClass = 'trend-up';
+            } else if (r.trend === 'down') {
+                trendIcon = '\u25BC -' + r.change;
+                trendClass = 'trend-down';
+            } else {
+                trendIcon = '\u25AC Stable';
+                trendClass = 'trend-stable';
+            }
+
+            resultsBody.innerHTML += `
+                <tr>
+                    <td>${r.location}</td>
+                    <td><span class="position-badge ${posClass}">#${r.position}</span></td>
+                    <td><span class="traffic-value">${r.estimated_traffic.toLocaleString()}</span>/mo</td>
+                    <td><span class="${trendClass}">${trendIcon}</span></td>
+                </tr>`;
+        });
+
+        resultsContainer.classList.add('visible');
+    }
+
+    // ── Animated counters on scroll ──
+    const statNumbers = document.querySelectorAll('.stat-number');
+    let countersAnimated = false;
+
+    function animateCounters() {
+        if (countersAnimated) return;
+
+        const statsSection = document.getElementById('stats');
+        const rect = statsSection.getBoundingClientRect();
+        if (rect.top > window.innerHeight * 0.8) return;
+
+        countersAnimated = true;
+
+        statNumbers.forEach(el => {
+            const target = parseInt(el.dataset.target);
+            const suffix = el.dataset.suffix || '';
+            const duration = 2000;
+            const startTime = performance.now();
+
+            function updateCounter(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const current = Math.floor(eased * target);
+                el.textContent = current.toLocaleString() + suffix;
+
+                if (progress < 1) {
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    el.textContent = target.toLocaleString() + suffix;
+                }
+            }
+
+            requestAnimationFrame(updateCounter);
+        });
+    }
+
+    // ── Scroll-triggered animations ──
+    function handleScrollAnimations() {
+        const elements = document.querySelectorAll('.animate-in');
+        elements.forEach(el => {
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight * 0.85) {
+                el.classList.add('visible');
+            }
+        });
+        animateCounters();
+    }
+
+    window.addEventListener('scroll', handleScrollAnimations, { passive: true });
+    window.addEventListener('load', handleScrollAnimations);
+
+    // ── Smooth scroll for nav links ──
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            const targetEl = document.querySelector(targetId);
+            if (targetEl) {
+                e.preventDefault();
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+})();
+</script>
+
+</body>
+</html>
